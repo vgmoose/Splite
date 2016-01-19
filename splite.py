@@ -1,5 +1,6 @@
 import json
 import sys
+import os
 
 print ".--=============--=============--."
 print "|       Welcome to Splite!       |"
@@ -64,10 +65,10 @@ try:
 except:
 	sheet = raw_input("| Path to sprite sheet: ")
 	
-tile_width  = sp_input(" Width of tile")
-tile_height = sp_input("Height of tile")
+tile_width  = int(sp_input(" Width of tile"))
+tile_height = int(sp_input("Height of tile"))
 
-frames = sp_input(" Number of frames")
+frames = int(sp_input(" Number of frames"))
 names  = sp_input("List of row names").replace(", ",",")
 
 dirs = names.split(",")
@@ -102,3 +103,33 @@ if not ans.lower() in yeswords:
 atlas_name = sp_input("Enter image atlas name")
 print ".--------------------------------"
 
+aname = atlas_name + ".spriteatlas"
+print "| Making " + aname + " directory"
+os.mkdir(aname)
+
+#print "| Making " + aname + "/Contents.json"
+main_content = {"info": { "version": 1, "author": "Splite" } }
+outjson = open(aname + "/Contents.json", "w")
+outjson.write(json.dumps(main_content, indent=4, separators=(',', ': ')))
+outjson.close()
+
+for d in dirs:
+	print "| Processing " + d + ".imageset"
+	for x in range(1, frames+1):
+		bname = aname + "/" + d + "_" + str(x) + ".imageset"
+#		print "| Creating " + bname + " directory"
+		os.mkdir(bname)
+		
+		sub_content = { "images" : [ { "idiom" : "universal", "filename" : "tiles-0.png", "scale" : "1x" }, { "idiom" : "universal", "scale" : "2x" }, { "idiom" : "universal", "scale" : "3x" } ], "info" : { "version" : 1, "author" : "Splite" } }
+		
+#		print "| Creating " + bname + "/Contents.json"
+		outjson = open(bname + "/Contents.json", "w")
+		outjson.write(json.dumps(sub_content, indent=4, separators=(',', ': ')))
+		outjson.close()
+		
+#		print "| Processing " + d + ".imageset: " + str(tile_width) + "x" + str(tile_height) + " frame #" + str(x)
+		
+
+print ".--=============--=============--."
+print "|           All Done!!           |"
+print ".--=============--=============--."
