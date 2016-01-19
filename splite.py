@@ -77,7 +77,7 @@ dirs = names.split(",")
 #print("| Opening your sprite sheet...")
 
 im = Image.open(sheet)
-pix = im.convert('RGB')
+pix = im.convert('RGBA')
 
 offsetx = 0
 offsety = 0
@@ -113,10 +113,11 @@ outjson = open(aname + "/Contents.json", "w")
 outjson.write(json.dumps(main_content, indent=4, separators=(',', ': ')))
 outjson.close()
 
+dcount = 0
 for d in dirs:
 	print "| Processing " + d + ".imageset"
 	for x in range(1, frames+1):
-		bname = aname + "/" + d + "_" + str(x) + ".imageset"
+		bname = aname + "/" + atlas_name + "_" + d + "_" + str(x) + ".imageset"
 #		print "| Creating " + bname + " directory"
 		os.mkdir(bname)
 		
@@ -128,7 +129,24 @@ for d in dirs:
 		outjson.close()
 		
 #		print "| Processing " + d + ".imageset: " + str(tile_width) + "x" + str(tile_height) + " frame #" + str(x)
+
+		top  = dcount*tile_height
+		left = x*tile_width
+		bottom = top + tile_height
+		right  = left + tile_width
 		
+		nim = im.crop((left, top, right, bottom))
+		npix = nim.load()
+		
+		for zy in range(0, tile_height):
+			for zx in range(0, tile_width):
+				if to_rgb(npix[zy, zx]) == truebg:
+					# make transparent
+					npix[zy, zx] = (255, 255, 255, 0)
+
+		nim.save(bname + "/tiles-0.png")
+		
+	dcount += 1
 
 print ".--=============--=============--."
 print "|           All Done!!           |"
